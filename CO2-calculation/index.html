@@ -1,0 +1,176 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CO2 Calculator</title>
+    <link rel="stylesheet" href="style.css">
+    <style>
+        html, body {
+            height: 100%;
+            margin: 0;
+            padding: 0;
+            background: #f9f9f9;
+        }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Arial', sans-serif;
+            color: #222;
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .container {
+            background: #fff;
+            border-radius: 18px;
+            box-shadow: 0 2px 16px rgba(0,0,0,0.04);
+            padding: 56px 40px 40px 40px;
+            max-width: 420px;
+            width: 100%;
+            text-align: center;
+        }
+        h1 {
+            font-size: 2.4em;
+            font-weight: 600;
+            margin-bottom: 18px;
+            letter-spacing: -1px;
+        }
+        p {
+            font-size: 1.1em;
+            color: #555;
+            margin-bottom: 36px;
+            line-height: 1.6;
+        }
+        .footer {
+            margin-top: 48px;
+            color: #bbb;
+            font-size: 0.98em;
+        }
+        @media (max-width: 600px) {
+            .container {
+                padding: 32px 12px 24px 12px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container" style="max-width:1200px;margin:0 auto;">
+        <div style="width:100%;text-align:center;margin:32px 0 32px 0;">
+            <h2 style="font-weight:400;margin-bottom:8px;">Welcome to the CO2 Calculator.</h2>
+            <div style="font-size:1.2em;color:#444;">Calculate and understand your carbon footprint with a clean, simple interface.</div>
+        </div>
+        <div class="row-flex" style="display:flex;gap:32px;flex-wrap:wrap;justify-content:space-between;align-items:flex-start;">
+            <div style="flex:1 1 420px;min-width:340px;display:flex;flex-direction:column;">
+                <form id="product-form" style="flex:1;">
+                    <div class="section" style="margin-bottom: 18px;">
+                        <h2 style="font-size:1.2em;text-align:left;margin-bottom:16px;">Product Info</h2>
+                        <label for="product-name" style="display:block;text-align:left;margin-bottom:8px;font-weight:500;">Product Name</label>
+                        <input type="text" id="product-name" name="product-name" placeholder="Enter product name" required style="width:100%;margin-bottom:16px;">
+                        <label for="material-select" style="display:block;text-align:left;margin-bottom:8px;font-weight:500;">Material</label>
+                        <select id="material-select" name="material-select" required style="width:100%;margin-bottom:16px;">
+                            <option value="">Select material</option>
+                            <option value="aluminum" data-co2="9.1">Aluminum (Generic)</option>
+                            <option value="AL6R01" data-co2="8.5">Aluminum AL6R01</option>
+                            <option value="steel" data-co2="2.0">Steel (Generic)</option>
+                            <option value="stainless_304" data-co2="6.1">Stainless Steel 304</option>
+                            <option value="stainless_316" data-co2="6.5">Stainless Steel 316</option>
+                            <option value="magnesium" data-co2="24.0">Magnesium</option>
+                            <option value="zinc" data-co2="3.8">Zinc</option>
+                            <option value="copper" data-co2="4.0">Copper</option>
+                            <option value="pc" data-co2="5.2">Polycarbonate (PC)</option>
+                            <option value="pb" data-co2="2.5">Polybutylene (PB)</option>
+                            <option value="abs" data-co2="3.5">Acrylonitrile Butadiene Styrene (ABS)</option>
+                            <option value="pet" data-co2="1.5">Polyethylene Terephthalate (PET)</option>
+                            <option value="pp" data-co2="1.7">Polypropylene (PP)</option>
+                            <option value="pe" data-co2="1.8">Polyethylene (PE)</option>
+                            <option value="tpu" data-co2="3.2">Thermoplastic Polyurethane (TPU)</option>
+                            <option value="pbt" data-co2="3.0">Polybutylene Terephthalate (PBT)</option>
+                            <option value="pom" data-co2="2.7">Polyoxymethylene (POM)</option>
+                            <option value="pa6" data-co2="4.5">Polyamide 6 (PA6)</option>
+                            <option value="pa66" data-co2="4.8">Polyamide 66 (PA66)</option>
+                            <option value="other" data-co2="">Other</option>
+                        </select>
+                        <label for="material-co2" style="display:block;text-align:left;margin-bottom:8px;font-weight:500;">CO2 Factor (kg CO2e/kg)</label>
+                        <input type="number" id="material-co2" name="material-co2" placeholder="Auto or enter manually" min="0" step="0.01" style="width:100%;margin-bottom:16px;">
+                        <label for="product-weight" style="display:block;text-align:left;margin-bottom:8px;font-weight:500;">Product Weight (kg)</label>
+                        <input type="number" id="product-weight" name="product-weight" placeholder="Enter product weight" min="0" step="0.01" required style="width:100%;">
+                    </div>
+                    <button type="button" id="calculate-material-co2" style="width:100%;margin-top:10px;">Calculate Material CO2</button>
+                </form>
+                <div id="material-co2-result" class="section" style="display:none;text-align:center;font-size:1.2em;"></div>
+            </div>
+            <div style="flex:1 1 420px;min-width:340px;display:flex;flex-direction:column;">
+                <form id="package-form" style="flex:1;">
+                    <div class="section" style="margin-bottom: 18px;">
+                        <h2 style="font-size:1.2em;text-align:left;margin-bottom:16px;">Package Info</h2>
+                        <label for="tray-material-select" style="display:block;text-align:left;margin-bottom:8px;font-weight:500;">Tray Material</label>
+                        <select id="tray-material-select" name="tray-material-select" required style="width:100%;margin-bottom:16px;">
+                            <option value="">Select tray material</option>
+                            <option value="paper" data-co2="1.1">Paper</option>
+                            <option value="carton" data-co2="1.2">Carton</option>
+                            <option value="pet" data-co2="1.5">PET</option>
+                            <option value="pp" data-co2="1.7">PP</option>
+                            <option value="pe" data-co2="1.8">PE</option>
+                            <option value="ps" data-co2="2.0">PS</option>
+                            <option value="pulp" data-co2="0.9">Pulp Molded</option>
+                            <option value="other" data-co2="">Other</option>
+                        </select>
+                        <label for="tray-weight" style="display:block;text-align:left;margin-bottom:8px;font-weight:500;">Tray Weight (kg)</label>
+                        <input type="number" id="tray-weight" name="tray-weight" placeholder="Enter tray weight" min="0" step="0.001" style="width:100%;margin-bottom:16px;">
+                        <label for="tray-co2" style="display:block;text-align:left;margin-bottom:8px;font-weight:500;">Tray CO2 Factor (kg CO2e/pcs)</label>
+                        <input type="number" id="tray-co2" name="tray-co2" placeholder="Auto or enter manually" min="0" step="0.01" style="width:100%;margin-bottom:16px;">
+                        <label for="package-qty" style="display:block;text-align:left;margin-bottom:8px;font-weight:500;">Package Quantity (pcs)</label>
+                        <input type="number" id="package-qty" name="package-qty" placeholder="Enter package quantity" min="1" step="1" style="width:100%;">
+                    </div>
+                    <button type="button" id="calculate-package-co2" style="width:100%;margin-top:10px;">Calculate Package CO2 per PCS</button>
+                </form>
+                <div id="package-co2-result" class="section" style="display:none;text-align:center;font-size:1.2em;"></div>
+            </div>
+        </div>
+        <div class="row-flex" style="display:flex;gap:32px;flex-wrap:wrap;justify-content:space-between;align-items:flex-start;margin-top:32px;">
+            <div style="flex:1 1 520px;min-width:340px;max-width:600px;">
+                <form id="process-form" style="margin-bottom: 32px;">
+                    <div class="section" style="margin-bottom: 18px;">
+                        <h2 style="font-size:1.2em;text-align:left;margin-bottom:16px;">Process Info</h2>
+                        <div id="process-list">
+                            <div class="process-row" style="margin-bottom:12px;">
+                                <select class="process-select" required style="width:30%;margin-right:8px;">
+                                    <option value="">Select process</option>
+                                    <option value="injection" data-co2="0.5">Injection Molding</option>
+                                    <option value="cnc" data-co2="1.2">CNC Machining</option>
+                                    <option value="die_casting" data-co2="1.8">Die Casting</option>
+                                    <option value="stamping" data-co2="0.7">Stamping</option>
+                                    <option value="extrusion" data-co2="1.0">Extrusion</option>
+                                    <option value="anodizing" data-co2="0.3">Anodizing</option>
+                                    <option value="painting" data-co2="0.2">Painting</option>
+                                    <option value="welding" data-co2="0.4">Welding</option>
+                                    <option value="assembly" data-co2="0.1">Assembly</option>
+                                    <option value="other" data-co2="">Other</option>
+                                </select>
+                                <input type="number" class="process-ct" placeholder="CT (hour)" min="0" step="0.01" style="width:20%;margin-right:8px;">
+                                <input type="number" class="process-co2" placeholder="CO2 (kg/h)" min="0" step="0.01" style="width:20%;margin-right:8px;">
+                                <button type="button" class="remove-process" style="background:#e74c3c;color:#fff;">-</button>
+                            </div>
+                        </div>
+                        <button type="button" id="add-process" style="margin-top:10px;background:#27ae60;color:#fff;">+ Add Process</button>
+                    </div>
+                    <button type="button" id="calculate-process-co2" style="width:100%;margin-top:10px;">Calculate Total Process CO2</button>
+                </form>
+                <div id="process-co2-result" class="section" style="display:none;text-align:center;font-size:1.2em;"></div>
+            </div>
+            <div style="flex:1 1 320px;min-width:240px;max-width:400px;display:flex;align-items:flex-start;justify-content:center;">
+                <div id="total-co2-summary" style="font-size:1.15em;font-weight:500;text-align:center;">
+                    <div style="font-size:1.5em;font-weight:600;margin-bottom:10px;">Total CO2=</div>
+                    <button type="button" id="calculate-total-co2" style="margin:18px auto 10px auto;display:block;font-size:1.1em;padding:12px 24px;">Calculate Total CO2</button>
+                    <div id="total-co2-breakdown" style="font-size:1em;font-weight:400;margin-top:10px;text-align:left;"></div>
+                </div>
+            </div>
+        </div>
+        <button type="button" id="preview-report-btn" style="display:block;margin:48px auto 0 auto;padding:14px 36px;font-size:1.1em;background:#3498db;color:#fff;border:none;border-radius:6px;cursor:pointer;max-width:400px;width:100%;">Preview Report</button>
+        <div class="footer" style="margin-top:32px;">&copy; 2024 CO2 Tool</div>
+    </div>
+    <!-- container 结束 -->
+    <!-- 页面最底部按钮，始终居中 -->
+    <script src="script.js"></script>
+</body>
+</html>
