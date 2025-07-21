@@ -48,7 +48,16 @@ document.addEventListener('DOMContentLoaded', function() {
 
     if (exportPdfBtn) {
         exportPdfBtn.addEventListener('click', function() {
-            alert('PDF export feature coming soon!');
+            if (window.html2pdf) {
+                html2pdf().set({
+                    margin: 10,
+                    filename: 'CO2_Report.pdf',
+                    html2canvas: { scale: 2 },
+                    jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' }
+                }).from(reportPreview).save();
+            } else {
+                alert('PDF export failed: html2pdf.js not loaded.');
+            }
         });
     }
 }); 
