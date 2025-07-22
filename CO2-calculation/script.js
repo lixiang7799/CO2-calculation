@@ -27,7 +27,7 @@ document.addEventListener('DOMContentLoaded', function() {
             if (!isNaN(weight) && !isNaN(co2Factor)) {
                 const totalCO2 = weight * co2Factor;
                 resultDiv.style.display = 'block';
-                resultDiv.textContent = `Material CO2 Emissions: ${totalCO2.toFixed(2)} kg CO2e`;
+                resultDiv.textContent = `Material CO2 Emissions: ${totalCO2.toFixed(5)} kg CO2e`;
             } else {
                 resultDiv.style.display = 'block';
                 resultDiv.textContent = 'Please enter valid weight and CO2 factor.';
@@ -111,7 +111,7 @@ document.addEventListener('DOMContentLoaded', function() {
             });
             processResultDiv.style.display = 'block';
             if (valid && processList.children.length > 0) {
-                processResultDiv.textContent = `Total Process CO2 Emissions: ${totalCO2.toFixed(2)} kg CO2e`;
+                processResultDiv.textContent = `Total Process CO2 Emissions: ${totalCO2.toFixed(5)} kg CO2e`;
             } else {
                 processResultDiv.textContent = 'Please enter valid CT and CO2 factor for all processes.';
             }
@@ -146,7 +146,7 @@ document.addEventListener('DOMContentLoaded', function() {
             if (!isNaN(qty) && qty > 0 && !isNaN(co2Factor) && !isNaN(weight)) {
                 const co2PerPCS = (weight * co2Factor) / qty;
                 packageResultDiv.style.display = 'block';
-                packageResultDiv.textContent = `Package CO2 per PCS: ${co2PerPCS.toFixed(4)} kg CO2e`;
+                packageResultDiv.textContent = `Package CO2 per PCS: ${co2PerPCS.toFixed(5)} kg CO2e`;
             } else {
                 packageResultDiv.style.display = 'block';
                 packageResultDiv.textContent = 'Please enter valid tray weight, CO2 factor and package quantity.';
@@ -164,8 +164,13 @@ document.addEventListener('DOMContentLoaded', function() {
             let materialCO2 = 0;
             const weight = parseFloat(productWeight.value);
             const co2Factor = parseFloat(materialCO2.value);
-            if (!isNaN(weight) && !isNaN(co2Factor)) {
-                materialCO2 = weight * co2Factor;
+            // 修正：应取materialCO2输入框的值
+            const materialCO2FactorInput = document.getElementById('material-co2');
+            const materialWeightInput = document.getElementById('product-weight');
+            const materialCO2Factor = parseFloat(materialCO2FactorInput.value);
+            const materialWeightVal = parseFloat(materialWeightInput.value);
+            if (!isNaN(materialWeightVal) && !isNaN(materialCO2Factor)) {
+                materialCO2 = materialWeightVal * materialCO2Factor;
             }
             // Process
             let processCO2 = 0;
@@ -183,16 +188,17 @@ document.addEventListener('DOMContentLoaded', function() {
             let packageCO2 = 0;
             const qty = parseInt(packageQty.value, 10);
             const trayCO2Val = parseFloat(trayCO2.value);
-            if (!isNaN(qty) && qty > 0 && !isNaN(trayCO2Val)) {
-                packageCO2 = trayCO2Val / qty;
+            const trayWeightVal = parseFloat(trayWeight.value);
+            if (!isNaN(qty) && qty > 0 && !isNaN(trayCO2Val) && !isNaN(trayWeightVal)) {
+                packageCO2 = (trayWeightVal * trayCO2Val) / qty;
             }
             // Total
             const total = materialCO2 + processCO2 + packageCO2;
-            let html = `<b>Material CO2:</b> ${materialCO2 ? materialCO2.toFixed(2) : '0'} kg CO2e<br>`;
-            html += `<b>Process CO2:</b> ${processCO2 ? processCO2.toFixed(2) : '0'} kg CO2e<br>`;
-            html += `<b>Package CO2:</b> ${packageCO2 ? packageCO2.toFixed(4) : '0'} kg CO2e<br>`;
+            let html = `<b>Material CO2:</b> ${materialCO2 ? materialCO2.toFixed(5) : '0.00000'} kg CO2e<br>`;
+            html += `<b>Process CO2:</b> ${processCO2 ? processCO2.toFixed(5) : '0.00000'} kg CO2e<br>`;
+            html += `<b>Package CO2:</b> ${packageCO2 ? packageCO2.toFixed(5) : '0.00000'} kg CO2e<br>`;
             html += `<hr style='margin:8px 0;'>`;
-            html += `<b style='font-size:1.2em;'>Total CO2: ${total ? total.toFixed(2) : '0'} kg CO2e</b>`;
+            html += `<b style='font-size:1.2em;'>Total CO2: ${total ? total.toFixed(5) : '0.00000'} kg CO2e</b>`;
             totalBreakdown.innerHTML = html;
         });
     }
@@ -292,7 +298,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 const co2 = row.querySelector('.process-co2').value || '-';
                 let rowCO2 = '-';
                 if (ct !== '-' && co2 !== '-') {
-                    rowCO2 = (parseFloat(ct) * parseFloat(co2)).toFixed(2);
+                    rowCO2 = (parseFloat(ct) * parseFloat(co2)).toFixed(5);
                     if (!isNaN(rowCO2)) processCO2Val += parseFloat(rowCO2);
                 }
                 processRows += `<tr><td>${idx+1}</td><td>${procName}</td><td>${ct}</td><td>${co2}</td><td>${rowCO2}</td></tr>`;
